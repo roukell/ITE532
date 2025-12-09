@@ -7,8 +7,8 @@ terraform init
 terraform fmt
 terraform validate
 terraform plan
-terraform apply
-terraform destroy
+terraform apply --auto-approve
+terraform destroy --auto-approve
 ```
 
 ## Find the instance ID
