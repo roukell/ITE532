@@ -3,3 +3,8 @@ variable "aws_region" {
   type        = string
   default     = "ap-southeast-2"
 }
+
+variable "allowed_ips" {
+  description = "Your IP address for secure access"
+  type        = list(string)
+}

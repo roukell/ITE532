@@ -40,7 +40,12 @@ resource "aws_security_group" "ssm_only" {
   name        = "ssm-only-sg"
   description = "No inbound; outbound only for SSM and package installs"
 
-  # No ingress block = no inbound allowed
+  ingress {
+    from_port   = 8888
+    to_port     = 8888
+    protocol    = "tcp"
+    cidr_blocks = var.allowed_ips
+  }
 
   egress {
     from_port   = 0
