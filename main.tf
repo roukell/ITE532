@@ -13,7 +13,7 @@ resource "aws_instance" "example" {
               dnf update -y
 
               # Install Docker
-              dnf install -y docker git
+              dnf install -y docker git vim
 
               # Enable + start Docker
               systemctl enable docker
@@ -30,7 +30,7 @@ resource "aws_instance" "example" {
               EOF
 
   tags = {
-    Name = "ExampleInstance-SSM-Only"
+    Name = "ExampleInstance"
   }
 }
 

@@ -17,7 +17,7 @@ Run:
 
 ```bash
 aws ec2 describe-instances \
-  --filters "Name=tag:Name,Values=ExampleInstance-SSM-Only" \
+  --filters "Name=tag:Name,Values=ExampleInstance" \
   --query "Reservations[0].Instances[0].InstanceId" \
   --output text
 ```
