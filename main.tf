@@ -2,7 +2,7 @@ resource "aws_instance" "example" {
   ami                    = data.aws_ssm_parameter.al2023_ami.value
   instance_type          = "t2.micro" # free tier eligible
   iam_instance_profile   = aws_iam_instance_profile.ssm_profile.name
-  vpc_security_group_ids = [aws_security_group.ssm_only.id]
+  vpc_security_group_ids = [aws_security_group.ssm_and_local_only.id]
 
   # Install Docker Engine on Amazon Linux 2023
   user_data = <<-EOF
@@ -13,7 +13,7 @@ resource "aws_instance" "example" {
               dnf update -y
 
               # Install Docker
-              dnf install -y docker
+              dnf install -y docker git
 
               # Enable + start Docker
               systemctl enable docker
@@ -34,17 +34,25 @@ resource "aws_instance" "example" {
   }
 }
 
-# Security group - SSM only
-# (no inbound ports open)
-resource "aws_security_group" "ssm_only" {
-  name        = "ssm-only-sg"
-  description = "No inbound; outbound only for SSM and package installs"
+data "http" "my_ip" {
+  url = "https://api.ipify.org"
+}
+
+locals {
+  # This works when running Terraform locally
+  my_ip = "${chomp(data.http.my_ip.response_body)}/32"
+}
+
+# Security group - SSM and local ip only
+resource "aws_security_group" "ssm_and_local_only" {
+  name        = "ssm-and-local-only-sg"
+  description = "inbound for local ip only; outbound only for SSM and package installs"
 
   ingress {
     from_port   = 8888
     to_port     = 8888
     protocol    = "tcp"
-    cidr_blocks = var.allowed_ips
+    cidr_blocks = [local.my_ip]
   }
 
   egress {
