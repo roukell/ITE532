@@ -81,8 +81,8 @@ resource "aws_security_group" "ssm_and_local_only" {
   description = "inbound for local ip only; outbound only for SSM and package installs"
 
   ingress {
-    from_port   = 8888
-    to_port     = 8888
+    from_port   = 8080
+    to_port     = 8080
     protocol    = "tcp"
     cidr_blocks = [local.my_ip]
   }
