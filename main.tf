@@ -49,11 +49,12 @@ resource "aws_instance" "ubuntu" {
   apt-get update
   
   # Install Docker
-  apt-get install -y docker.io git vim bridge-utils
+  apt-get install -y docker.io git vim bridge-utils amazon-ssm-agent docker-compose-plugin
   
   # Enable + start Docker
   systemctl enable docker
   systemctl start docker
+  systemctl enable amazon-ssm-agent
   
   # Add ubuntu user to docker group
   usermod -aG docker ubuntu
@@ -81,9 +82,9 @@ resource "aws_security_group" "ssm_and_local_only" {
   description = "inbound for local ip only; outbound only for SSM and package installs"
 
   ingress {
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = [local.my_ip]
   }
 
