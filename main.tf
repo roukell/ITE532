@@ -41,39 +41,7 @@ resource "aws_instance" "ubuntu" {
   vpc_security_group_ids = [aws_security_group.ssm_and_local_only.id]
 
   # Install Docker Engine on Ubuntu 24.04
-  user_data = <<-EOF
-  #!/bin/bash
-  set -xe
-  
-  # Update system
-  apt-get update
-  
-  # Install Docker
-  apt-get install -y docker.io git vim bridge-utils amazon-ssm-agent ca-certificates curl gnupg
-
-  # Enable + start Docker
-  systemctl enable docker
-  systemctl start docker
-  systemctl enable amazon-ssm-agent
-
-  sudo install -m 0755 -d /etc/apt/keyrings
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-  sudo chmod a+r /etc/apt/keyrings/docker.gpg
-
-  echo \
-  "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-  apt-get update
-  apt-get install docker-compose-plugin
-
-  docker compose version
-  
-  # Add ubuntu user to docker group
-  usermod -aG docker ubuntu
-  
-  # Group changes will take effect on next login; no need to run newgrp in cloud-init
-  EOF
+  user_data = file("${path.module}/files/user_data.sh")
 
   tags = {
     Name = "ubuntu"

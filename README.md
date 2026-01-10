@@ -34,4 +34,5 @@ aws ssm start-session --target <instance-id>
 # switch user
 sudo su - ec2-user
 sudo su - ubuntu
+newgrp docker
 ```
