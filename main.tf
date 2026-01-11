@@ -35,8 +35,9 @@
 # }
 
 resource "aws_instance" "ubuntu" {
+  count                  = 2
   ami                    = data.aws_ssm_parameter.ubuntu_24_04_ami.value
-  instance_type          = "t3.medium"
+  instance_type          = "t3.small"
   iam_instance_profile   = aws_iam_instance_profile.ssm_profile.name
   vpc_security_group_ids = [aws_security_group.ssm_and_local_only.id]
 
@@ -44,7 +45,7 @@ resource "aws_instance" "ubuntu" {
   user_data = file("${path.module}/files/user_data.sh")
 
   tags = {
-    Name = "ubuntu"
+    Name = "ubuntu-${count.index + 1}"
   }
 }
 
@@ -67,6 +68,39 @@ resource "aws_security_group" "ssm_and_local_only" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = [local.my_ip]
+  }
+
+  # Docker Swarm intra-cluster ports (self-referenced SG)
+  ingress {
+    description = "Swarm cluster management"
+    from_port   = 2377
+    to_port     = 2377
+    protocol    = "tcp"
+    self        = true
+  }
+
+  ingress {
+    description = "Swarm gossip TCP"
+    from_port   = 7946
+    to_port     = 7946
+    protocol    = "tcp"
+    self        = true
+  }
+
+  ingress {
+    description = "Swarm gossip UDP"
+    from_port   = 7946
+    to_port     = 7946
+    protocol    = "udp"
+    self        = true
+  }
+
+  ingress {
+    description = "Swarm overlay network (VXLAN)"
+    from_port   = 4789
+    to_port     = 4789
+    protocol    = "udp"
+    self        = true
   }
 
   egress {
